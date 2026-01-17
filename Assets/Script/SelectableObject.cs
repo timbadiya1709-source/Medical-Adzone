@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Attach this to any GameObject with "Selectable" tag
+/// </summary>
 public class SelectableObject : MonoBehaviour
 {
     [Header("Object Information")]
@@ -10,6 +13,10 @@ public class SelectableObject : MonoBehaviour
 
     // Optional: Add icon or image
     public Sprite icon;
+
+    [Header("Placement State")]
+    [HideInInspector]
+    public bool isPlacedOnTable = false;
 
     // Get the description
     public string GetDescription()
