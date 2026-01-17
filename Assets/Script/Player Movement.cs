@@ -12,6 +12,13 @@ public class PlayerMovement : MonoBehaviour
     float yaw = 0f;
     float pitch = 0f;
     Rigidbody rb;
+
+    [Header("Ground Detection")]
+    public Transform groundCheck; // Assign a child transform at player's feet
+    public float groundDistance = 0.3f;
+    public LayerMask groundMask;
+    private bool isGrounded;
+
     void OnEnable()
     {
         horizontal.Enable();
@@ -26,11 +33,21 @@ public class PlayerMovement : MonoBehaviour
         yaw = transform.eulerAngles.y;
         if (playerCamera != null)
             pitch = playerCamera.transform.localEulerAngles.x;
+
+        if (groundCheck == null)
+        {
+            // Create a groundCheck transform at the bottom of the capsule
+            GameObject gc = new GameObject("GroundCheck");
+            gc.transform.SetParent(transform);
+            gc.transform.localPosition = new Vector3(0, -0.5f, 0); // Adjust for capsule height
+            groundCheck = gc.transform;
+        }
     }
 
 
     public void FixedUpdate()
     {
+        GroundDetection();
         playermovement();
         playerotation();
         cameraupdown();
@@ -42,8 +59,23 @@ public class PlayerMovement : MonoBehaviour
         float v = vertical.IsPressed() ? vertical.ReadValue<float>() : 0f;
         Vector3 localMove = new Vector3(h, 0f, v).normalized * Speed * Time.deltaTime;
         Vector3 worldMove = transform.TransformDirection(localMove);
-        worldMove.y = rb.linearVelocity.y;
-        rb.linearVelocity = worldMove;
+
+        // Only move horizontally if grounded
+        if (isGrounded)
+        {
+            worldMove.y = rb.linearVelocity.y;
+            rb.linearVelocity = worldMove;
+        }
+        else
+        {
+            // Optionally, apply gravity or restrict movement when not grounded
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        }
+    }
+
+    private void GroundDetection()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
     }
 
 
