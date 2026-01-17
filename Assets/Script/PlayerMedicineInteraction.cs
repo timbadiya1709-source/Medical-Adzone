@@ -3,40 +3,84 @@ using UnityEngine.InputSystem;
 
 public class PlayerRayInteract : MonoBehaviour
 {
-    public Camera playerCamera;
-    public float maxDistance = 3f;
-    public LayerMask interactableMask;
-    [SerializeField] InputAction interact; // bind to E
-    public UIController uiController;
+	public float interactDistance = 5f;
+	public Color highlightColor = Color.yellow;
 
-    void OnEnable() => interact.Enable();
-    void OnDisable() => interact.Disable();
+	private Transform cam;
+	private GameObject lastHighlighted;
+	private Material lastMaterial;
+	private Color originalColor;
+	private SelectableObject currentSelectable;
 
-    void Update()
-    {
-        if (playerCamera == null) return;
+	void Start()
+	{
+		if (Camera.main != null)
+		{
+			cam = Camera.main.transform;
+		}
+	}
 
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, interactableMask))
-        {
-            // optional: show "Press E" prompt here
-            if (interact.triggered)
-            {
-                string tag = hit.collider.tag;
-                uiController?.ShowForTag(tag);
-            }
-        }
-        else
-        {
-            // optional: hide prompt
-            if (interact.triggered)
-            {
-                uiController?.HideAll();
-            }
-        }
+	void Update()
+	{
+		if (cam == null)
+			return;
 
-        // optional: close UI with Escape
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-            uiController?.HideAll();
-    }
+		Ray ray = new Ray(cam.position, cam.forward);
+		RaycastHit hit;
+
+		if (Physics.Raycast(ray, out hit, interactDistance))
+		{
+			GameObject hitObj = hit.collider.gameObject;
+			if (hitObj.CompareTag("Selectable"))
+			{
+				if (lastHighlighted != hitObj)
+				{
+					RemoveHighlight();
+					HighlightObject(hitObj);
+					
+					// Show description
+					SelectableObject selectable = hitObj.GetComponent<SelectableObject>();
+					if (selectable != null)
+					{
+						currentSelectable = selectable;
+						DescriptionUI.Instance?.ShowDescription(
+							selectable.GetObjectName(), 
+							selectable.GetDescription()
+						);
+					}
+				}
+				return;
+			}
+		}
+		RemoveHighlight();
+	}
+
+	void HighlightObject(GameObject obj)
+	{
+		Renderer rend = obj.GetComponent<Renderer>();
+		if (rend != null)
+		{
+			lastHighlighted = obj;
+			lastMaterial = rend.material;
+			originalColor = lastMaterial.color;
+			lastMaterial.color = highlightColor;
+		}
+	}
+
+	void RemoveHighlight()
+	{
+		if (lastHighlighted != null && lastMaterial != null)
+		{
+			lastMaterial.color = originalColor;
+			lastHighlighted = null;
+			lastMaterial = null;
+		}
+		
+		// Hide description
+		if (currentSelectable != null)
+		{
+			DescriptionUI.Instance?.HideDescription();
+			currentSelectable = null;
+		}
+	}
 }
