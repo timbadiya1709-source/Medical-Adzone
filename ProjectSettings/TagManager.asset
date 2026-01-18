@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Selectable
   - Table
+  - Tourch
+  - Pickupable
   layers:
   - Default
   - TransparentFX

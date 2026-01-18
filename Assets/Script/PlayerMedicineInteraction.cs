@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// Updated PlayerRayInteract - Pick up medicine, carry it, place on table
+/// AND pick up other objects (Torch, etc.) and drop them at original position
 /// </summary>
 public class PlayerRayInteract : MonoBehaviour
 {
@@ -18,9 +19,15 @@ public class PlayerRayInteract : MonoBehaviour
 	private Material lastMaterial;
 	private Color originalColor;
 	private SelectableObject currentSelectable;
-	private GameObject carriedMedicine;
+	
+	// Carried object data
+	private GameObject carriedObject;
 	private Vector3 originalScale;
-	private bool isCarryingMedicine = false;
+	private Vector3 originalPosition; // Store pickup position for non-medicine objects
+	private Quaternion originalRotation; // Store pickup rotation
+	private bool isCarryingObject = false;
+	private bool isCarryingMedicine = false; // Track if carrying medicine specifically
+	
 	private CarryingPosition carryingPosition;
 
 	void Start()
@@ -47,10 +54,23 @@ public class PlayerRayInteract : MonoBehaviour
 		if (cam == null)
 			return;
 
-		// Update carried medicine position using CarryingPosition
-		if (isCarryingMedicine && carriedMedicine != null && carryingPosition != null)
+		// Update carried object position using CarryingPosition
+		if (isCarryingObject && carriedObject != null && carryingPosition != null)
 		{
-			carryingPosition.AnimateCarriedObject(carriedMedicine.transform);
+			carryingPosition.AnimateCarriedObject(carriedObject.transform);
+		}
+
+		// If carrying a non-medicine object, show drop prompt and wait for E
+		if (isCarryingObject && !isCarryingMedicine)
+		{
+			PickupPromptUI.Instance?.ShowPrompt("Press E to drop");
+			
+			// Press E to drop at original position
+			if (interactAction.WasPressedThisFrame())
+			{
+				DropObjectAtOriginalPosition();
+			}
+			return;
 		}
 
 		// Raycast for interactions
@@ -61,8 +81,8 @@ public class PlayerRayInteract : MonoBehaviour
 		{
 			GameObject hitObj = hit.collider.gameObject;
 
-			// Check if looking at medicine (and not carrying one)
-			if (hitObj.CompareTag("Selectable") && !isCarryingMedicine)
+			// Check if looking at medicine (and not carrying anything)
+			if (hitObj.CompareTag("Selectable") && !isCarryingObject)
 			{
 				if (lastHighlighted != hitObj)
 				{
@@ -83,10 +103,39 @@ public class PlayerRayInteract : MonoBehaviour
 					}
 				}
 
-				// Press E to pick up
+				// Press E to pick up medicine
 				if (interactAction.WasPressedThisFrame() && currentSelectable != null)
 				{
 					PickupMedicine(currentSelectable);
+				}
+
+				return;
+			}
+			// Check if looking at pickupable object (Torch, etc.) and not carrying anything
+			else if (hitObj.CompareTag("Pickupable") && !isCarryingObject)
+			{
+				// Don't highlight, but show description
+				SelectableObject selectable = hitObj.GetComponent<SelectableObject>();
+				if (selectable != null)
+				{
+					if (currentSelectable != selectable)
+					{
+						RemoveHighlight();
+						currentSelectable = selectable;
+						
+						DescriptionUI.Instance?.ShowDescription(
+							selectable.GetObjectName(),
+							selectable.GetDescription()
+						);
+
+						PickupPromptUI.Instance?.ShowPrompt("Press E to pick up");
+					}
+
+					// Press E to pick up object
+					if (interactAction.WasPressedThisFrame())
+					{
+						PickupObject(selectable);
+					}
 				}
 
 				return;
@@ -100,10 +149,10 @@ public class PlayerRayInteract : MonoBehaviour
 					HighlightObject(hitObj);
 
 					// Show place prompt
-					PickupPromptUI.Instance?.ShowPrompt($"Press E to place {carriedMedicine.name}");
+					PickupPromptUI.Instance?.ShowPrompt($"Press E to place {carriedObject.name}");
 				}
 
-				// Press E to place
+				// Press E to place medicine
 				if (interactAction.WasPressedThisFrame())
 				{
 					PlaceMedicineOnTable(hitObj.GetComponent<TablePlacement>(), hit.point);
@@ -118,8 +167,10 @@ public class PlayerRayInteract : MonoBehaviour
 
 	void HighlightObject(GameObject obj)
 	{
+		// Only highlight "Selectable" (medicine) objects
 		if (!obj.CompareTag("Selectable"))
 			return;
+			
 		Renderer rend = obj.GetComponent<Renderer>();
 		if (rend != null)
 		{
@@ -140,14 +191,19 @@ public class PlayerRayInteract : MonoBehaviour
 		}
 		
 		// Hide UI
-		if (currentSelectable != null && !isCarryingMedicine)
+		if (currentSelectable != null && !isCarryingObject)
 		{
 			DescriptionUI.Instance?.HideDescription();
 			PickupPromptUI.Instance?.HidePrompt();
 			currentSelectable = null;
 		}
 		
-		if (isCarryingMedicine)
+		if (isCarryingObject && !isCarryingMedicine)
+		{
+			// Don't hide prompt when carrying non-medicine (shows "Press E to drop")
+			DescriptionUI.Instance?.HideDescription();
+		}
+		else if (isCarryingMedicine)
 		{
 			PickupPromptUI.Instance?.HidePrompt();
 		}
@@ -178,7 +234,8 @@ public class PlayerRayInteract : MonoBehaviour
 		}
 
 		// Update state
-		carriedMedicine = medicine.gameObject;
+		carriedObject = medicine.gameObject;
+		isCarryingObject = true;
 		isCarryingMedicine = true;
 
 		// Hide UI
@@ -192,11 +249,90 @@ public class PlayerRayInteract : MonoBehaviour
 		Debug.Log($"Picked up {medicine.GetObjectName()}");
 	}
 
-	// Carrying animation is now handled by CarryingPosition
+	void PickupObject(SelectableObject obj)
+	{
+		// Store original transform data
+		originalScale = obj.transform.localScale;
+		originalPosition = obj.transform.position;
+		originalRotation = obj.transform.rotation;
+
+		// Disable physics
+		Rigidbody rb = obj.GetComponent<Rigidbody>();
+		if (rb != null)
+		{
+			rb.isKinematic = true;
+		}
+
+		Collider col = obj.GetComponent<Collider>();
+		if (col != null)
+		{
+			col.enabled = false;
+		}
+
+		// Use CarryingPosition to attach to hand
+		if (carryingPosition != null)
+		{
+			carryingPosition.AttachToHand(obj.transform, originalScale);
+		}
+
+		// Update state
+		carriedObject = obj.gameObject;
+		isCarryingObject = true;
+		isCarryingMedicine = false; // Not medicine
+
+		// Hide UI
+		DescriptionUI.Instance?.HideDescription();
+		PickupPromptUI.Instance?.HidePrompt();
+		currentSelectable = null;
+
+		// Show feedback
+		PickupPromptUI.Instance?.ShowPickupFeedback($"Picked up {obj.GetObjectName()}");
+
+		Debug.Log($"Picked up {obj.GetObjectName()} - will drop at original position");
+	}
+
+	void DropObjectAtOriginalPosition()
+	{
+		if (carriedObject == null) return;
+
+		// Unparent from hand
+		carriedObject.transform.SetParent(null);
+		
+		// Restore original transform
+		carriedObject.transform.position = originalPosition;
+		carriedObject.transform.rotation = originalRotation;
+		carriedObject.transform.localScale = originalScale;
+
+		// Re-enable physics
+		Rigidbody rb = carriedObject.GetComponent<Rigidbody>();
+		if (rb != null)
+		{
+			rb.isKinematic = true; // Keep kinematic
+		}
+		
+		Collider col = carriedObject.GetComponent<Collider>();
+		if (col != null)
+		{
+			col.enabled = true;
+		}
+
+		// Show feedback
+		PickupPromptUI.Instance?.ShowPickupFeedback($"Dropped {carriedObject.name}");
+
+		Debug.Log($"Dropped {carriedObject.name} at original position");
+
+		// Clear carried state
+		carriedObject = null;
+		isCarryingObject = false;
+		isCarryingMedicine = false;
+
+		// Hide prompt
+		PickupPromptUI.Instance?.HidePrompt();
+	}
 
 	void PlaceMedicineOnTable(TablePlacement table, Vector3 hitPoint)
 	{
-		if (carriedMedicine == null) return;
+		if (carriedObject == null) return;
 
 		// Get placement position from table
 		Vector3 placePosition;
@@ -216,30 +352,30 @@ public class PlayerRayInteract : MonoBehaviour
 		}
 
 		// Unparent from hand
-		carriedMedicine.transform.SetParent(null);
+		carriedObject.transform.SetParent(null);
 		
 		// Set position and rotation
-		carriedMedicine.transform.position = placePosition;
-		carriedMedicine.transform.rotation = placeRotation;
+		carriedObject.transform.position = placePosition;
+		carriedObject.transform.rotation = placeRotation;
 		
 		// Restore original scale
-		carriedMedicine.transform.localScale = originalScale;
+		carriedObject.transform.localScale = originalScale;
 
 		// Re-enable physics (optional - can keep static on table)
-		Rigidbody rb = carriedMedicine.GetComponent<Rigidbody>();
+		Rigidbody rb = carriedObject.GetComponent<Rigidbody>();
 		if (rb != null)
 		{
 			rb.isKinematic = true; // Keep kinematic so it doesn't fall
 		}
 		
-		Collider col = carriedMedicine.GetComponent<Collider>();
+		Collider col = carriedObject.GetComponent<Collider>();
 		if (col != null)
 		{
 			col.enabled = true;
 		}
 
 		// Mark as placed
-		SelectableObject selectable = carriedMedicine.GetComponent<SelectableObject>();
+		SelectableObject selectable = carriedObject.GetComponent<SelectableObject>();
 		if (selectable != null)
 		{
 			selectable.isPlacedOnTable = true;
@@ -248,19 +384,18 @@ public class PlayerRayInteract : MonoBehaviour
 		// Register with table
 		if (table != null)
 		{
-			table.RegisterPlacedMedicine(carriedMedicine);
+			table.RegisterPlacedMedicine(carriedObject);
 		}
 
-		// Play sound removed
-
 		// Show feedback
-		PickupPromptUI.Instance?.ShowPickupFeedback($"Placed {carriedMedicine.name} on table");
+		PickupPromptUI.Instance?.ShowPickupFeedback($"Placed {carriedObject.name} on table");
 
-		Debug.Log($"Placed {carriedMedicine.name} on table");
+		Debug.Log($"Placed {carriedObject.name} on table");
 
 		// Clear carried state
-		string medicineName = carriedMedicine.name;
-		carriedMedicine = null;
+		string medicineName = carriedObject.name;
+		carriedObject = null;
+		isCarryingObject = false;
 		isCarryingMedicine = false;
 
 		// Hide prompt
@@ -272,6 +407,4 @@ public class PlayerRayInteract : MonoBehaviour
 			table.CheckAllMedicinesPlaced();
 		}
 	}
-
-	// No unused code remains; all UI feedback and interaction logic is preserved as requested.
 }
