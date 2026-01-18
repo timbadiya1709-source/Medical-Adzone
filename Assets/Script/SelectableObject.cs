@@ -12,7 +12,7 @@ public class SelectableObject : MonoBehaviour
     public string objectName = "Object";
 
     // Optional: Add icon or image
-    public Sprite icon;
+    // public Sprite icon;
 
     [Header("Placement State")]
     [HideInInspector]
