@@ -14,6 +14,11 @@ public class DescriptionUI : MonoBehaviour
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI descriptionText;
     
+    [Header("Patient Panel References")]
+    public GameObject patientPanel;
+    public TextMeshProUGUI patientTitleText;
+    public TextMeshProUGUI patientSymptoms;
+    
     // If using regular Unity UI Text instead of TextMeshPro:
     // public Text titleText;
     // public Text descriptionText;

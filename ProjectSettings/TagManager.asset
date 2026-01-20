@@ -8,6 +8,7 @@ TagManager:
   - Table
   - Tourch
   - Pickupable
+  - Patient
   layers:
   - Default
   - TransparentFX
