@@ -12,11 +12,7 @@ public class PlayerMovement : MonoBehaviour
     float yaw = 0f;
     float pitch = 0f;
     Rigidbody rb;
-
-    [Header("Ground Detection")]
-    public Transform groundCheck; // Assign a child transform at player's feet
-    public float groundDistance = 0.3f;
-    public LayerMask groundMask;
+    private GroundDetection groundDetection;
     private bool isGrounded;
 
     void OnEnable()
@@ -28,26 +24,19 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        groundDetection = GetComponent<GroundDetection>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
         yaw = transform.eulerAngles.y;
         if (playerCamera != null)
             pitch = playerCamera.transform.localEulerAngles.x;
-
-        if (groundCheck == null)
-        {
-            // Create a groundCheck transform at the bottom of the capsule
-            GameObject gc = new GameObject("GroundCheck");
-            gc.transform.SetParent(transform);
-            gc.transform.localPosition = new Vector3(0, -0.5f, 0); // Adjust for capsule height
-            groundCheck = gc.transform;
-        }
     }
 
 
     public void FixedUpdate()
     {
-        GroundDetection();
+        if (groundDetection != null)
+            isGrounded = groundDetection.IsGrounded();
         playermovement();
         playerotation();
         cameraupdown();
@@ -72,12 +61,6 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
-
-    private void GroundDetection()
-    {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-    }
-
 
     private void playerotation()
     {
