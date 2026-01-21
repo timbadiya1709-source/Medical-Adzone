@@ -1784,7 +1784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1305, y: -300}
+  m_AnchoredPosition: {x: -1449, y: 524}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &635766221
@@ -3135,7 +3135,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -480, y: 242}
+  m_AnchoredPosition: {x: 64, y: 242}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1317163600
@@ -3988,10 +3988,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PatientTrigger
   patientTitle: Patient 1
   patientDescription: " Fever\n Cough\n Headache"
-  uiPanel: {fileID: 635766219}
+  uiPanel: {fileID: 1243964052}
   titleText: {fileID: 342576428}
   descriptionText: {fileID: 1492966663}
   closeButton: {fileID: 0}
+  uiPanel2: {fileID: 635766219}
+  titleText2: {fileID: 409045060}
+  descriptionText2: {fileID: 2032099197}
+  closeButton2: {fileID: 0}
+  panel2Title: Treatment
+  panel2Description: 'Tourch
+
+    paracetamol'
   triggerOnce: 1
 --- !u!65 &1832048792
 BoxCollider:

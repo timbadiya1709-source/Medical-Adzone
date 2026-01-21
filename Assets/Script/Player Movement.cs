@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         groundDetection = GetComponent<GroundDetection>();
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
+        Cursor.visible = false;
         yaw = transform.eulerAngles.y;
         if (playerCamera != null)
             pitch = playerCamera.transform.localEulerAngles.x;
