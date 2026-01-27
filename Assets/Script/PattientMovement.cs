@@ -1,15 +1,31 @@
 using UnityEngine;
 
-public class PattientMovement : MonoBehaviour
+public class PatientMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private Vector3 startPosition;
-    [SerializeField] private Vector3 targetPosition;        
+    [SerializeField] private Vector3 entryPosition;
+    [SerializeField] private Vector3 treatmentPosition; // Where patient waits for treatment
+    [SerializeField] private Vector3 exitPosition;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private bool autoStart = true; // Auto start movement on game start
+    
+    [Header("Requirement Panel")]
+    [SerializeField] private GameObject requirementPanel;
+    
+    [Header("Auto Start")]
+    [SerializeField] private bool autoStart = true;
     
     private Rigidbody rb;
     private bool isMoving = false;
+    private Vector3 currentTarget;
+    private PatientState currentState = PatientState.Entry;
+    
+    private enum PatientState
+    {
+        Entry,      // Moving to treatment position
+        Waiting,    // Waiting for requirements to be fulfilled
+        Exiting,    // Moving to exit
+        Done        // Reached exit, ready to be destroyed
+    }
 
     void Start()
     {
@@ -21,17 +37,21 @@ public class PattientMovement : MonoBehaviour
             return;
         }
         
-        // Configure Rigidbody for smooth movement
+        // Configure Rigidbody
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         rb.isKinematic = false;
         
-        startPosition = transform.position;
+        // Set starting position
+        transform.position = entryPosition;
         
-        // Auto start for testing
-        if (autoStart && targetPosition != Vector3.zero)
+        // Hide requirement panel initially
+        if (requirementPanel != null)
+            requirementPanel.SetActive(false);
+        
+        // Auto start entry
+        if (autoStart)
         {
-            StartMovement(targetPosition);
-            Debug.Log("Auto-starting movement to: " + targetPosition);
+            StartEntry();
         }
     }
 
@@ -44,23 +64,43 @@ public class PattientMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// Starts moving the object from current position to target position
+    /// Starts the patient entry sequence
     /// </summary>
-    public void StartMovement(Vector3 newTargetPosition)
+    public void StartEntry()
     {
-        targetPosition = newTargetPosition;
+        currentState = PatientState.Entry;
+        currentTarget = treatmentPosition;
         isMoving = true;
-        Debug.Log(gameObject.name + " starting movement to: " + targetPosition);
+        Debug.Log(gameObject.name + " entering to treatment position");
     }
 
     /// <summary>
-    /// Moves the object smoothly towards target position using Rigidbody
+    /// Called by RequirementManager when all requirements are fulfilled
+    /// </summary>
+    public void StartExit()
+    {
+        if (currentState == PatientState.Waiting)
+        {
+            currentState = PatientState.Exiting;
+            currentTarget = exitPosition;
+            isMoving = true;
+            
+            // Close requirement panel
+            if (requirementPanel != null)
+                requirementPanel.SetActive(false);
+            
+            Debug.Log(gameObject.name + " requirements fulfilled, exiting");
+        }
+    }
+
+    /// <summary>
+    /// Moves the patient smoothly towards current target
     /// </summary>
     private void MoveToTarget()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget);
         
-        // Check if reached destination (increased threshold for better detection)
+        // Check if reached destination
         if (distanceToTarget < 0.1f)
         {
             rb.linearVelocity = Vector3.zero;
@@ -70,33 +110,47 @@ public class PattientMovement : MonoBehaviour
         }
         
         // Calculate direction and move
-        Vector3 direction = (targetPosition - transform.position).normalized;
+        Vector3 direction = (currentTarget - transform.position).normalized;
         Vector3 velocity = direction * speed;
         
-        // Apply velocity through Rigidbody
+        // Apply velocity (maintain Y velocity for gravity)
         rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
     }
 
     /// <summary>
-    /// Callback function when object reaches destination
-    /// Override this or subscribe to an event based on your needs
+    /// Called when patient reaches current destination
     /// </summary>
     private void OnReachedDestination()
     {
-        Debug.Log(gameObject.name + " reached destination at: " + targetPosition);
-        // Add your own logic here
+        switch (currentState)
+        {
+            case PatientState.Entry:
+                // Reached treatment position, show panel and wait
+                currentState = PatientState.Waiting;
+                if (requirementPanel != null)
+                    requirementPanel.SetActive(true);
+                Debug.Log(gameObject.name + " reached treatment position, waiting for requirements");
+                break;
+                
+            case PatientState.Exiting:
+                // Reached exit, destroy patient
+                currentState = PatientState.Done;
+                Debug.Log(gameObject.name + " reached exit, destroying");
+                Destroy(gameObject);
+                break;
+        }
     }
 
     /// <summary>
-    /// Returns if object is currently moving
+    /// Returns current state of patient
     /// </summary>
-    public bool IsMoving()
+    public bool IsWaiting()
     {
-        return isMoving;
+        return currentState == PatientState.Waiting;
     }
 
     /// <summary>
-    /// Stops the movement immediately
+    /// Stops movement immediately
     /// </summary>
     public void StopMovement()
     {

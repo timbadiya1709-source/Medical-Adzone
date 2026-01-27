@@ -4,7 +4,7 @@ using TMPro;
 
 public class DragObjects : MonoBehaviour
 {
-    public string targetTag = "DropTarget"; // Tag for the correct drop target
+    public string targetTag = "Patient"; // Tag for the correct drop target
     public TMPro.TextMeshProUGUI feedbackText; // Assign in inspector
 
     private bool isDragging = false;

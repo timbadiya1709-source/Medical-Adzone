@@ -16,16 +16,6 @@ public class PatientTrigger : MonoBehaviour
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Button closeButton;
 
-    [Header("Second UI Panel References")]
-    [SerializeField] private GameObject uiPanel2;
-    [SerializeField] private TextMeshProUGUI titleText2;
-    [SerializeField] private TextMeshProUGUI descriptionText2;
-    [SerializeField] private Button closeButton2;
-
-    [Header("Second Panel Information")]
-    [SerializeField] private string panel2Title = "Panel 2 Title";
-    [TextArea(3, 10)]
-    [SerializeField] private string panel2Description = "Panel 2 description here...";
     
     [Header("Trigger Settings")]
     [SerializeField] private bool triggerOnce = true;
@@ -61,21 +51,6 @@ public class PatientTrigger : MonoBehaviour
             closeButton.onClick.AddListener(ClosePanel);
         }
 
-        // Hide second panel at start
-        if (uiPanel2 != null)
-        {
-            uiPanel2.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("Second UI Panel not assigned in Inspector!");
-        }
-
-        // Setup close button for second panel
-        if (closeButton2 != null)
-        {
-            closeButton2.onClick.AddListener(ClosePanel2);
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -124,34 +99,6 @@ public class PatientTrigger : MonoBehaviour
         uiPanel.SetActive(true);
         Debug.Log("Panel shown!");
 
-        // Update and show second panel
-        if (titleText2 != null)
-        {
-            titleText2.text = panel2Title;
-        }
-        else
-        {
-            Debug.LogWarning("Second Title Text not assigned!");
-        }
-
-        if (descriptionText2 != null)
-        {
-            descriptionText2.text = panel2Description;
-        }
-        else
-        {
-            Debug.LogWarning("Second Description Text not assigned!");
-        }
-
-        if (uiPanel2 != null)
-        {
-            uiPanel2.SetActive(true);
-            Debug.Log("Second panel shown!");
-        }
-        else
-        {
-            Debug.LogWarning("Second UI Panel not assigned!");
-        }
         
         // Optional: Pause game or freeze player movement
         // Time.timeScale = 0f; // Uncomment to pause game
@@ -172,10 +119,5 @@ public class PatientTrigger : MonoBehaviour
 
     public void ClosePanel2()
     {
-        if (uiPanel2 != null)
-        {
-            uiPanel2.SetActive(false);
-            Debug.Log("Second panel closed!");
-        }
     }
 }
