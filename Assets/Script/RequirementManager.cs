@@ -5,7 +5,8 @@ public class RequirementManager : MonoBehaviour
     [SerializeField] private PatientMovement patient;
     
     [Header("Required Items")]
-    [SerializeField] private UIDragItem[] requiredItems; // All drag items that need completion
+    [SerializeField] private UIMedicineDragItem[] requiredMedicineItems; // All medicine drag items that need completion
+    [SerializeField] private UIToolDragItem[] requiredToolItems; // All tool drag items that need completion
     
     private void Update()
     {
@@ -26,16 +27,27 @@ public class RequirementManager : MonoBehaviour
     /// </summary>
     private bool AreAllRequirementsFulfilled()
     {
-        if (requiredItems == null || requiredItems.Length == 0)
+        bool hasMedicine = requiredMedicineItems != null && requiredMedicineItems.Length > 0;
+        bool hasTools = requiredToolItems != null && requiredToolItems.Length > 0;
+        if (!hasMedicine && !hasTools)
             return false;
 
-        foreach (UIDragItem item in requiredItems)
+        if (hasMedicine)
         {
-            // If item is destroyed, it means it completed its drops
-            if (item != null)
-                return false; // Still has active items
+            foreach (UIMedicineDragItem item in requiredMedicineItems)
+            {
+                if (item != null)
+                    return false;
+            }
         }
-        
-        return true; // All items are null (destroyed), requirements met!
+        if (hasTools)
+        {
+            foreach (UIToolDragItem item in requiredToolItems)
+            {
+                if (item != null)
+                    return false;
+            }
+        }
+        return true;
     }
 }

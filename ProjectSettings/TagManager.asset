@@ -9,6 +9,7 @@ TagManager:
   - Tourch
   - Pickupable
   - Patient
+  - machine
   layers:
   - Default
   - TransparentFX

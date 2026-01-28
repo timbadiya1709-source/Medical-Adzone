@@ -3,20 +3,17 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public enum ItemType { Medicine, Tool }
-    
     public string targetTag = "Patient"; 
     public TextMeshProUGUI feedbackText;
     public Camera mainCamera;
     
-    [Header("Item Settings")]
-    public ItemType itemType = ItemType.Medicine;
-    public string counterID = "Item1"; // Unique ID - must match PatientListManager
-    public int totalRequiredDrops = 3; // For medicine only
+    [Header("Medicine Settings")]
+    public string counterID = "Medicine1"; // Unique ID - must match PatientListManager
+    public int totalRequiredDrops = 3;
     
-    [Header("Counter UI (For Medicine)")]
+    [Header("Counter UI")]
     public TextMeshProUGUI myCounterText;
 
     private Vector3 originalPosition;
@@ -42,7 +39,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         if (feedbackText != null)
             feedbackText.gameObject.SetActive(false);
 
-        if (myCounterText == null && itemType == ItemType.Medicine)
+        if (myCounterText == null)
         {
             myCounterText = GetComponentInChildren<TextMeshProUGUI>();
         }
@@ -50,8 +47,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         // Find the PatientListManager in the scene
         listManager = FindFirstObjectByType<PatientListManager>();
         
-        if (itemType == ItemType.Medicine)
-            UpdateCounterDisplay();
+        UpdateCounterDisplay();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -99,40 +95,27 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     void HandleSuccessfulDrop()
     {
-        if (itemType == ItemType.Medicine)
-        {
-            currentDropCount++;
-            UpdateCounterDisplay();
-            
-            // Notify list manager
-            if (listManager != null)
-                listManager.OnMedicineDropped(counterID);
+        currentDropCount++;
+        UpdateCounterDisplay();
+        
+        // Notify list manager
+        if (listManager != null)
+            listManager.OnMedicineDropped(counterID);
 
-            if (currentDropCount >= totalRequiredDrops)
-            {
-                Debug.Log(counterID + " completed all drops!");
-                Destroy(gameObject);
-            }
-            else
-            {
-                rectTransform.anchoredPosition = originalPosition;
-            }
-        }
-        else if (itemType == ItemType.Tool)
+        if (currentDropCount >= totalRequiredDrops)
         {
-            // Notify list manager
-            if (listManager != null)
-                listManager.OnToolDropped(counterID);
-            
-            // Tool is used once and destroyed
-            Debug.Log(counterID + " tool used!");
+            Debug.Log(counterID + " completed all drops!");
             Destroy(gameObject);
+        }
+        else
+        {
+            rectTransform.anchoredPosition = originalPosition;
         }
     }
 
     void UpdateCounterDisplay()
     {
-        if (myCounterText != null && itemType == ItemType.Medicine)
+        if (myCounterText != null)
         {
             myCounterText.text = currentDropCount + "/" + totalRequiredDrops;
         }
