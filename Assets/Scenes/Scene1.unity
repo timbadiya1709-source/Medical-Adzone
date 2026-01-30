@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 27578053}
   - component: {fileID: 27578054}
   - component: {fileID: 27578055}
+  - component: {fileID: 27578056}
   m_Layer: 5
   m_Name: Torch
   m_TagString: Untagged
@@ -194,6 +195,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &27578056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 27578052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &65981678
 GameObject:
   m_ObjectHideFlags: 0
@@ -205,6 +218,7 @@ GameObject:
   - component: {fileID: 65981679}
   - component: {fileID: 65981681}
   - component: {fileID: 65981680}
+  - component: {fileID: 65981682}
   m_Layer: 5
   m_Name: CounterText 2
   m_TagString: Untagged
@@ -330,6 +344,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 65981678}
   m_CullTransparentMesh: 1
+--- !u!114 &65981682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65981678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &212491863
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,6 +367,7 @@ GameObject:
   - component: {fileID: 212491864}
   - component: {fileID: 212491866}
   - component: {fileID: 212491865}
+  - component: {fileID: 212491867}
   m_Layer: 5
   m_Name: CounterText
   m_TagString: Untagged
@@ -466,6 +493,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 212491863}
   m_CullTransparentMesh: 1
+--- !u!114 &212491867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 212491863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &235182616
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,6 +604,7 @@ GameObject:
   m_Component:
   - component: {fileID: 281851470}
   - component: {fileID: 281851469}
+  - component: {fileID: 281851472}
   - component: {fileID: 281851468}
   - component: {fileID: 281851467}
   - component: {fileID: 281851471}
@@ -677,6 +717,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &281851472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281851466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &301252005
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,15 +925,15 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 313364686}
-        m_TargetAssemblyTypeName: LoadScene, Assembly-CSharp
-        m_MethodName: LoadManufacturing
-        m_Mode: 5
+        m_TargetAssemblyTypeName: SceneButton, Assembly-CSharp
+        m_MethodName: GoToScene2
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Manufacturing
+          m_StringArgument: Scene2
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &313364684
@@ -1083,6 +1135,7 @@ GameObject:
   - component: {fileID: 362021345}
   - component: {fileID: 362021344}
   - component: {fileID: 362021343}
+  - component: {fileID: 362021346}
   m_Layer: 5
   m_Name: Count Of Paracetamol
   m_TagString: Untagged
@@ -1208,6 +1261,18 @@ RectTransform:
   m_AnchoredPosition: {x: 908.47144, y: -73.65808}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &362021346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 362021342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &370372670
 GameObject:
   m_ObjectHideFlags: 0
@@ -1221,6 +1286,7 @@ GameObject:
   - component: {fileID: 370372672}
   - component: {fileID: 370372671}
   - component: {fileID: 370372676}
+  - component: {fileID: 370372677}
   m_Layer: 5
   m_Name: Utility Button
   m_TagString: Untagged
@@ -1350,6 +1416,18 @@ MonoBehaviour:
   - {fileID: 477201108}
   - {fileID: 1814204731}
   toggleButton: {fileID: 370372671}
+--- !u!114 &370372677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370372670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &408772094
 GameObject:
   m_ObjectHideFlags: 0
@@ -1472,6 +1550,7 @@ GameObject:
   - component: {fileID: 409045059}
   - component: {fileID: 409045061}
   - component: {fileID: 409045060}
+  - component: {fileID: 409045062}
   m_Layer: 5
   m_Name: Treatment
   m_TagString: Untagged
@@ -1597,6 +1676,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 409045058}
   m_CullTransparentMesh: 1
+--- !u!114 &409045062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 409045058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1954,6 +2045,7 @@ GameObject:
   - component: {fileID: 587529665}
   - component: {fileID: 587529667}
   - component: {fileID: 587529666}
+  - component: {fileID: 587529668}
   m_Layer: 5
   m_Name: CounterText 1
   m_TagString: Untagged
@@ -2079,6 +2171,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 587529664}
   m_CullTransparentMesh: 1
+--- !u!114 &587529668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587529664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &609397812
 GameObject:
   m_ObjectHideFlags: 0
@@ -3500,6 +3604,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1169480168}
+  - component: {fileID: 1169480169}
   m_Layer: 5
   m_Name: CounterPanel
   m_TagString: Untagged
@@ -3529,6 +3634,18 @@ RectTransform:
   m_AnchoredPosition: {x: -902.77, y: -840}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1169480169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1169480167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &1243964052
 GameObject:
   m_ObjectHideFlags: 0
@@ -3964,6 +4081,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1317929889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1317929891}
+  - component: {fileID: 1317929892}
+  m_Layer: 0
+  m_Name: SceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1317929891
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317929889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1317929892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317929889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57796d4c79c4dab479b99f7c5cc4f2b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
 --- !u!1 &1342647911
 GameObject:
   m_ObjectHideFlags: 0
@@ -3978,6 +4139,7 @@ GameObject:
   - component: {fileID: 1342647916}
   - component: {fileID: 1342647914}
   - component: {fileID: 1342647913}
+  - component: {fileID: 1342647919}
   m_Layer: 5
   m_Name: Slot 2
   m_TagString: Untagged
@@ -4108,6 +4270,18 @@ MonoBehaviour:
   counterID: Medicine1
   totalRequiredDrops: 3
   myCounterText: {fileID: 65981680}
+--- !u!114 &1342647919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1342647911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &1369777439
 GameObject:
   m_ObjectHideFlags: 0
@@ -4122,6 +4296,7 @@ GameObject:
   - component: {fileID: 1369777444}
   - component: {fileID: 1369777442}
   - component: {fileID: 1369777441}
+  - component: {fileID: 1369777447}
   m_Layer: 5
   m_Name: Slot 1
   m_TagString: Untagged
@@ -4252,6 +4427,18 @@ MonoBehaviour:
   counterID: Medicine1
   totalRequiredDrops: 3
   myCounterText: {fileID: 587529666}
+--- !u!114 &1369777447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369777439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &1488835082
 GameObject:
   m_ObjectHideFlags: 0
@@ -4700,6 +4887,7 @@ GameObject:
   - component: {fileID: 1635445207}
   - component: {fileID: 1635445211}
   - component: {fileID: 1635445210}
+  - component: {fileID: 1635445213}
   m_Layer: 5
   m_Name: Slot
   m_TagString: Untagged
@@ -4830,6 +5018,18 @@ MonoBehaviour:
   counterID: Paracetamol
   totalRequiredDrops: 3
   myCounterText: {fileID: 212491865}
+--- !u!114 &1635445213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1635445204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &1660389705
 GameObject:
   m_ObjectHideFlags: 0
@@ -4958,6 +5158,7 @@ GameObject:
   - component: {fileID: 1741934278}
   - component: {fileID: 1741934277}
   - component: {fileID: 1741934276}
+  - component: {fileID: 1741934279}
   m_Layer: 5
   m_Name: Stethoscope
   m_TagString: Untagged
@@ -5022,6 +5223,18 @@ RectTransform:
   m_AnchoredPosition: {x: -1214.832, y: 342.59473}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1741934279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741934275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0c19769c4b0cac41a107632ff3cfc69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveableObject
 --- !u!1 &1790138367
 GameObject:
   m_ObjectHideFlags: 0
@@ -5682,3 +5895,4 @@ SceneRoots:
   - {fileID: 1660389709}
   - {fileID: 4494036497806186747}
   - {fileID: 1144343984}
+  - {fileID: 1317929891}

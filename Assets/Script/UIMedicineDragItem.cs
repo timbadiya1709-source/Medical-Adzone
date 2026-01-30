@@ -11,7 +11,7 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
     
     [Header("Medicine Settings")]
     public string counterID = "Medicine1"; // Unique ID - must match PatientListManager
-    public int totalRequiredDrops = 3;
+    public int totalRequiredDrops = 3; // This is now your medicine stock/inventory
     
     [Header("Counter UI")]
     public TextMeshProUGUI myCounterText;
@@ -20,7 +20,6 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
     private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
     private Vector3 offset;
-    private int currentDropCount = 0;
     private PatientListManager listManager;
 
     void Awake()
@@ -52,6 +51,13 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Check if we have medicine left
+        if (totalRequiredDrops <= 0)
+        {
+            Debug.Log("No medicine left to drag!");
+            return;
+        }
+        
         offset = transform.position - (Vector3)eventData.position;
         canvasGroup.alpha = 0.6f;
         canvasGroup.blocksRaycasts = false; 
@@ -60,6 +66,8 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (totalRequiredDrops <= 0) return;
+        
         transform.position = (Vector3)eventData.position + offset;
     }
 
@@ -67,6 +75,12 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
+
+        if (totalRequiredDrops <= 0)
+        {
+            rectTransform.anchoredPosition = originalPosition;
+            return;
+        }
 
         Ray ray = mainCamera.ScreenPointToRay(eventData.position);
         RaycastHit hit;
@@ -95,29 +109,40 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     void HandleSuccessfulDrop()
     {
-        currentDropCount++;
+        // Decrease medicine count (using one medicine)
+        totalRequiredDrops--;
         UpdateCounterDisplay();
         
         // Notify list manager
         if (listManager != null)
             listManager.OnMedicineDropped(counterID);
 
-        if (currentDropCount >= totalRequiredDrops)
-        {
-            Debug.Log(counterID + " completed all drops!");
-            Destroy(gameObject);
-        }
-        else
-        {
-            rectTransform.anchoredPosition = originalPosition;
-        }
+        // Return to original position
+        rectTransform.anchoredPosition = originalPosition;
+        
+        // Optional: Destroy if no medicine left
+        // if (totalRequiredDrops <= 0)
+        // {
+        //     Debug.Log(counterID + " ran out of medicine!");
+        //     Destroy(gameObject);
+        // }
     }
 
     void UpdateCounterDisplay()
     {
         if (myCounterText != null)
         {
-            myCounterText.text = currentDropCount + "/" + totalRequiredDrops;
+            myCounterText.text = totalRequiredDrops.ToString();
+            // Or if you want to show it differently:
+            // myCounterText.text = "Stock: " + totalRequiredDrops;
         }
+    }
+
+    // Call this when a product is collected from manufacturing
+    public void AddMedicine(int amount = 1)
+    {
+        totalRequiredDrops += amount;
+        UpdateCounterDisplay();
+        Debug.Log(counterID + " medicine stock increased to: " + totalRequiredDrops);
     }
 }

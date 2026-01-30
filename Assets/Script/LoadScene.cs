@@ -3,12 +3,12 @@ using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour
 {
-    public void LoadManufacturing(string Manufacturing)
+    public void LoadManufacturing()
     {
-        SceneManager.LoadScene(Manufacturing);
+        SceneManager.LoadScene("Scene2");
     }
-    public void Hospital(string Hospital)
+    public void Hospital()
     {
-        SceneManager.LoadScene(Hospital);
+        SceneManager.LoadScene("Scene1");
     }
 }
