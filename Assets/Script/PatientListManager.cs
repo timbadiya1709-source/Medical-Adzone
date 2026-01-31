@@ -38,7 +38,13 @@ public class PatientListManager : MonoBehaviour
     public TextMeshProUGUI completionText;
     public string completionMessage = "All items completed!";
     public GameObject completionPanel; // Optional panel to show
-    
+
+    [Header("Patient Exit")]
+    [Tooltip("Patient to send to exit when all tools and medicines are completed. Assign the same patient that shows this list.")]
+    [SerializeField] private PatientMovement patient;
+
+    private bool hasTriggeredExit;
+
     void Start()
     {
         // Store original colors for tools
@@ -135,6 +141,12 @@ public class PatientListManager : MonoBehaviour
     void OnAllItemsCompleted()
     {
         Debug.Log("*** ALL ITEMS COMPLETED! ***");
+
+        if (!hasTriggeredExit && patient != null && patient.IsWaiting())
+        {
+            hasTriggeredExit = true;
+            patient.StartExit();
+        }
         
         if (completionText != null)
         {
@@ -146,12 +158,6 @@ public class PatientListManager : MonoBehaviour
         {
             completionPanel.SetActive(true);
         }
-        
-        // You can add more completion logic here:
-        // - Play sound
-        // - Show animation
-        // - Enable next button
-        // - Award points, etc.
     }
     
     // Call this when a new patient arrives
@@ -180,6 +186,8 @@ public class PatientListManager : MonoBehaviour
         
         if (completionPanel != null)
             completionPanel.SetActive(false);
+
+        hasTriggeredExit = false;
             
         Debug.Log("Patient list reset for new patient");
     }

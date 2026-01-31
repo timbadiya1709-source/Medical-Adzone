@@ -5,7 +5,10 @@ public class PatientMovement : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private Vector3 entryPosition;
     [SerializeField] private Vector3 treatmentPosition; // Where patient waits for treatment
+    [Tooltip("World position the patient moves to before being destroyed. Ignored if Exit Point is set.")]
     [SerializeField] private Vector3 exitPosition;
+    [Tooltip("Optional. Use this Transform's position as the exit point instead of Exit Position.")]
+    [SerializeField] private Transform exitPoint;
     [SerializeField] private float speed = 5f;
     
     [Header("Requirement Panel")]
@@ -79,18 +82,17 @@ public class PatientMovement : MonoBehaviour
     /// </summary>
     public void StartExit()
     {
-        if (currentState == PatientState.Waiting)
-        {
-            currentState = PatientState.Exiting;
-            currentTarget = exitPosition;
-            isMoving = true;
-            
-            // Close requirement panel
-            if (requirementPanel != null)
-                requirementPanel.SetActive(false);
-            
-            Debug.Log(gameObject.name + " requirements fulfilled, exiting");
-        }
+        if (currentState != PatientState.Waiting)
+            return;
+
+        currentState = PatientState.Exiting;
+        currentTarget = exitPoint != null ? exitPoint.position : exitPosition;
+        isMoving = true;
+
+        if (requirementPanel != null)
+            requirementPanel.SetActive(false);
+
+        Debug.Log(gameObject.name + " requirements fulfilled, exiting to " + currentTarget);
     }
 
     /// <summary>
