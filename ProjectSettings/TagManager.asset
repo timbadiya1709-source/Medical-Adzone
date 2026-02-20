@@ -10,7 +10,7 @@ TagManager:
   - Pickupable
   - Patient
   - machine
-  - SaveRoot
+  - GameRoot
   layers:
   - Default
   - TransparentFX

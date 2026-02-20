@@ -22,7 +22,7 @@ public class PatientMovement : MonoBehaviour
     private Vector3 currentTarget;
     private PatientState currentState = PatientState.Entry;
     
-    private enum PatientState
+    public enum PatientState
     {
         Entry,      // Moving to treatment position
         Waiting,    // Waiting for requirements to be fulfilled
@@ -44,12 +44,12 @@ public class PatientMovement : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         rb.isKinematic = false;
         
-        // Set starting position
-        transform.position = entryPosition;
-        
         // Hide requirement panel initially
         if (requirementPanel != null)
             requirementPanel.SetActive(false);
+
+        // Set starting position
+        transform.position = entryPosition;
         
         // Auto start entry
         if (autoStart)
@@ -65,6 +65,7 @@ public class PatientMovement : MonoBehaviour
             MoveToTarget();
         }
     }
+
 
     /// <summary>
     /// Starts the patient entry sequence

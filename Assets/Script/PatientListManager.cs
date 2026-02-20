@@ -62,6 +62,28 @@ public class PatientListManager : MonoBehaviour
         
         if (completionPanel != null)
             completionPanel.SetActive(false);
+
+        // Load persisted state
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            foreach (var medicine in medicines)
+            {
+                medicine.currentCount = SceneStateManagerRoot.Instance.GetDroppedMedicineCount(medicine.itemID);
+                UpdateMedicineDisplay(medicine);
+            }
+
+            foreach (var tool in tools)
+            {
+                if (SceneStateManagerRoot.Instance.IsToolCompleted(tool.itemID))
+                {
+                    tool.isCompleted = true;
+                    if (tool.backgroundImage != null)
+                        tool.backgroundImage.color = tool.highlightColor;
+                }
+            }
+            // Check if loading state completes the level
+            CheckCompletion();
+        }
     }
     
     // Call this from UIDragItem when medicine is dropped
@@ -73,6 +95,10 @@ public class PatientListManager : MonoBehaviour
         {
             medicine.currentCount++;
             UpdateMedicineDisplay(medicine);
+            
+            // Save state
+            if (SceneStateManagerRoot.Instance != null)
+                SceneStateManagerRoot.Instance.SaveDroppedMedicineCount(itemID, medicine.currentCount);
             
             Debug.Log($"{medicine.displayName}: {medicine.currentCount}/{medicine.requiredCount}");
             
@@ -92,6 +118,10 @@ public class PatientListManager : MonoBehaviour
         if (tool != null && !tool.isCompleted)
         {
             tool.isCompleted = true;
+            
+            // Save state
+            if (SceneStateManagerRoot.Instance != null)
+                SceneStateManagerRoot.Instance.SaveCompletedTool(itemID, true);
             
             if (tool.backgroundImage != null)
             {

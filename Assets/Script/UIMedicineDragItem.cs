@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement; 
 
 public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -30,6 +31,14 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
         
         if (mainCamera == null) mainCamera = Camera.main;
     }
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }  
+     void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 
     void Start()
     {
@@ -46,7 +55,40 @@ public class UIMedicineDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler
         // Find the PatientListManager in the scene
         listManager = FindFirstObjectByType<PatientListManager>();
         
+        // Restore state from SceneStateManagerRoot
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            totalRequiredDrops = SceneStateManagerRoot.Instance.GetMedicineState(counterID, totalRequiredDrops);
+        }
+
         UpdateCounterDisplay();
+    }
+
+ 
+    void OnDestroy()
+    {
+        // Save state to SceneStateManagerRoot
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            SceneStateManagerRoot.Instance.SaveMedicineState(counterID, totalRequiredDrops);
+        }
+    }
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Only refresh if we just returned to the scene this object lives in
+        if (scene.name == gameObject.scene.name)
+        {
+            RefreshFromState();
+        }
+    }
+     void RefreshFromState()
+    {
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            totalRequiredDrops = SceneStateManagerRoot.Instance.GetMedicineState(counterID, totalRequiredDrops);
+            UpdateCounterDisplay();
+            Debug.Log($"{counterID} refreshed from state: {totalRequiredDrops}");
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)

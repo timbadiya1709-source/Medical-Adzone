@@ -6,227 +6,233 @@ using System.Collections.Generic;
 public class ManufacturingMachine : MonoBehaviour
 {
     [Header("Machine Settings")]
-    public float productionTime = 10f; // Customizable production time in seconds
-    public GameObject productPrefab; // The product to spawn
-    public Transform productSpawnPoint; // Where the product appears
-    
+    public float productionTime = 10f;
+    public GameObject productPrefab;
+    public Transform productSpawnPoint;
+
     [Header("UI")]
     public TextMeshProUGUI timerText;
+
+    [Header("UI System")]
+    public MachineUIPanel machineUIPanel;
     
-    [Header("Required Materials")]
-    public List<DraggableRawMaterial.MaterialType> requiredMaterials = new List<DraggableRawMaterial.MaterialType>()
-    {
-        DraggableRawMaterial.MaterialType.Type1,
-        DraggableRawMaterial.MaterialType.Type2,
-        DraggableRawMaterial.MaterialType.Type3,
-        DraggableRawMaterial.MaterialType.Type4
-    };
-    
-    private List<DraggableRawMaterial.MaterialType> collectedMaterials = new List<DraggableRawMaterial.MaterialType>();
     private bool isProducing = false;
-    private double productionEndTime; // Using double for precision with real time
+    private bool isProductWaiting = false;
+    private double productionEndTime;
     private string machineId;
-    
+    private string currentProducedMedicineID;
+
+    // Bump this whenever save format changes to wipe stale PlayerPrefs data
+    private const int SaveVersion = 3;
+
+    // Tracks whether we spawned a product during LoadMachineState (in Awake)
+    private GameObject pendingProduct = null;
+
     private void Awake()
     {
-        // Generate unique ID for this machine
-        machineId = gameObject.name + "_" + transform.position.ToString();
-        
-        // Load saved state if exists
+        // Use a more stable ID that includes local position and name
+        machineId = $"{gameObject.name}_{transform.localPosition.x:F2}_{transform.localPosition.y:F2}_{transform.localPosition.z:F2}";
+
+        int savedVersion = PlayerPrefs.GetInt(machineId + "_saveVersion", -1);
+        if (savedVersion != SaveVersion)
+        {
+            ClearMachineState();
+        }
+
         LoadMachineState();
     }
 
     private void Start()
     {
+        // If LoadMachineState spawned a waiting product, register it now
+        if (pendingProduct != null)
+        {
+            ProductCollector collector = pendingProduct.GetComponent<ProductCollector>();
+            if (collector != null)
+            {
+                collector.medicineID = currentProducedMedicineID;
+                if (ProductManager.Instance != null)
+                    ProductManager.Instance.RegisterProduct(collector);
+            }
+            pendingProduct = null;
+        }
+
         UpdateTimerDisplay();
+    }
+
+    private void OnMouseDown()
+    {
+        if (isProducing || isProductWaiting) return;
+        
+        if (machineUIPanel != null)
+        {
+            machineUIPanel.Show(this);
+        }
+    }
+
+    public void StartProductionFromUI(string apiID)
+    {
+        currentProducedMedicineID = apiID;
+        isProducing = true;
+        productionEndTime = GetCurrentRealTime() + productionTime;
+        
+        Debug.Log($"[Machine:{gameObject.name}] Started producing: {currentProducedMedicineID}");
+        SaveMachineState();
     }
 
     private void Update()
     {
         if (isProducing)
         {
-            double currentTime = GetCurrentRealTime();
-            double remainingTime = productionEndTime - currentTime;
-            
-            if (remainingTime <= 0)
-            {
-                // Production complete
+            double remaining = productionEndTime - GetCurrentRealTime();
+            if (remaining <= 0)
                 CompleteProduction();
-            }
             else
-            {
-                UpdateTimerDisplay(remainingTime);
-            }
+                UpdateTimerDisplay(remaining);
         }
     }
 
-    public void AddMaterial(DraggableRawMaterial.MaterialType materialType)
+    public bool IsMachineBusy()
     {
-        if (isProducing)
-        {
-            Debug.Log("Machine is already producing!");
-            return;
-        }
-        
-        // Check if this material is required and not already added
-        if (requiredMaterials.Contains(materialType) && !collectedMaterials.Contains(materialType))
-        {
-            collectedMaterials.Add(materialType);
-            Debug.Log($"Material {materialType} added. Total: {collectedMaterials.Count}/{requiredMaterials.Count}");
-            
-            // UPDATE THE UI DISPLAY
-            UpdateTimerDisplay();
-            
-            // Check if all materials are collected
-            if (AreAllMaterialsCollected())
-            {
-                StartProduction();
-            }
-        }
-        else
-        {
-            Debug.Log($"Material {materialType} is not needed or already added!");
-        }
-    }
-
-    private bool AreAllMaterialsCollected()
-    {
-        foreach (var requiredMaterial in requiredMaterials)
-        {
-            if (!collectedMaterials.Contains(requiredMaterial))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void StartProduction()
-    {
-        isProducing = true;
-        productionEndTime = GetCurrentRealTime() + productionTime;
-        
-        Debug.Log("Production started!");
-        SaveMachineState();
+        return isProducing || isProductWaiting;
     }
 
     private void CompleteProduction()
     {
         isProducing = false;
-        
-        // Spawn the product
-        if (productPrefab != null && productSpawnPoint != null)
+
+        if (!isProductWaiting)
         {
-            // Instantiate the product at the spawn point
-            GameObject spawnedProduct = Instantiate(productPrefab, productSpawnPoint.position, productSpawnPoint.rotation);
-            spawnedProduct.SetActive(true);
-            Debug.Log("Product is ready and spawned!");
+            isProductWaiting = true;
+
+            if (productPrefab != null && productSpawnPoint != null)
+            {
+                GameObject spawned = Instantiate(
+                    productPrefab,
+                    productSpawnPoint.position,
+                    productSpawnPoint.rotation
+                );
+                spawned.SetActive(true);
+
+                ProductCollector collector = spawned.GetComponent<ProductCollector>();
+                if (collector != null)
+                {
+                    collector.parentMachine = this;
+                    collector.medicineID = currentProducedMedicineID;
+                    if (ProductManager.Instance != null)
+                        ProductManager.Instance.RegisterProduct(collector);
+                }
+
+                Debug.Log($"{gameObject.name}: {currentProducedMedicineID} produced.");
+            }
+            
+            SaveMachineState();
         }
-        else
-        {
-            Debug.LogWarning("Product Prefab or Spawn Point is not assigned!");
-        }
-        
+
         UpdateTimerDisplay();
-        
-        // Reset machine
-        collectedMaterials.Clear();
+    }
+
+    public void OnProductCollected()
+    {
+        isProductWaiting = false;
+        currentProducedMedicineID = "";
         ClearMachineState();
+        UpdateTimerDisplay();
     }
 
     private void UpdateTimerDisplay(double remainingTime = 0)
     {
-        if (timerText != null)
+        if (timerText == null) return;
+
+        if (isProducing)
         {
-            if (isProducing)
-            {
-                TimeSpan timeSpan = TimeSpan.FromSeconds(remainingTime);
-                timerText.text = $"Time: {timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
-            }
-            else if (AreAllMaterialsCollected())
-            {
-                timerText.text = "Product Ready!";
-            }
-            else
-            {
-                timerText.text = $"Materials: {collectedMaterials.Count}/{requiredMaterials.Count}";
-            }
+            TimeSpan t = TimeSpan.FromSeconds(remainingTime);
+            timerText.text = $"{currentProducedMedicineID}: {t.Minutes:D2}:{t.Seconds:D2}";
+        }
+        else if (isProductWaiting)
+        {
+            timerText.text = "Ready!";
+        }
+        else
+        {
+            timerText.text = "click here";
         }
     }
 
-    // Get real-world time that persists across scenes
     private double GetCurrentRealTime()
     {
         return (DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
     }
 
-    // Save machine state to PlayerPrefs
     private void SaveMachineState()
     {
-        PlayerPrefs.SetInt(machineId + "_isProducing", isProducing ? 1 : 0);
-        PlayerPrefs.SetString(machineId + "_endTime", productionEndTime.ToString());
-        
-        // Save collected materials
-        string materialsString = string.Join(",", collectedMaterials);
-        PlayerPrefs.SetString(machineId + "_materials", materialsString);
-        
+        PlayerPrefs.SetInt(machineId + "_saveVersion",      SaveVersion);
+        PlayerPrefs.SetInt(machineId + "_isProducing",      isProducing      ? 1 : 0);
+        PlayerPrefs.SetInt(machineId + "_isProductWaiting", isProductWaiting ? 1 : 0);
+        PlayerPrefs.SetString(machineId + "_endTime",       productionEndTime.ToString());
+        PlayerPrefs.SetString(machineId + "_productID",     currentProducedMedicineID);
         PlayerPrefs.Save();
     }
 
-    // Load machine state from PlayerPrefs
     private void LoadMachineState()
     {
-        if (PlayerPrefs.HasKey(machineId + "_isProducing"))
+        if (!PlayerPrefs.HasKey(machineId + "_saveVersion"))
         {
-            isProducing = PlayerPrefs.GetInt(machineId + "_isProducing") == 1;
-            
-            if (isProducing)
-            {
-                string endTimeString = PlayerPrefs.GetString(machineId + "_endTime");
-                if (double.TryParse(endTimeString, out double savedEndTime))
-                {
-                    productionEndTime = savedEndTime;
-                    
-                    // Check if production should already be complete
-                    if (GetCurrentRealTime() >= productionEndTime)
-                    {
-                        CompleteProduction();
-                    }
-                }
-            }
-            
-            // Load collected materials
-            string materialsString = PlayerPrefs.GetString(machineId + "_materials");
-            if (!string.IsNullOrEmpty(materialsString))
-            {
-                string[] materialStrings = materialsString.Split(',');
-                collectedMaterials.Clear();
-                foreach (string matString in materialStrings)
-                {
-                    if (Enum.TryParse(matString, out DraggableRawMaterial.MaterialType matType))
-                    {
-                        collectedMaterials.Add(matType);
-                    }
-                }
-            }
+            isProducing = false;
+            isProductWaiting = false;
+            return;
         }
-    }
 
-    // Clear saved state
-    private void ClearMachineState()
-    {
-        PlayerPrefs.DeleteKey(machineId + "_isProducing");
-        PlayerPrefs.DeleteKey(machineId + "_endTime");
-        PlayerPrefs.DeleteKey(machineId + "_materials");
-        PlayerPrefs.Save();
-    }
+        if (PlayerPrefs.GetInt(machineId + "_saveVersion") != SaveVersion) return;
+        
+        currentProducedMedicineID = PlayerPrefs.GetString(machineId + "_productID", "");
+        isProducing      = PlayerPrefs.GetInt(machineId + "_isProducing", 0)      == 1;
+        isProductWaiting = PlayerPrefs.GetInt(machineId + "_isProductWaiting", 0) == 1;
 
-    private void OnDestroy()
-    {
-        // Save state when object is destroyed (scene change)
         if (isProducing)
         {
-            SaveMachineState();
+            if (double.TryParse(PlayerPrefs.GetString(machineId + "_endTime"), out double savedEnd))
+            {
+                productionEndTime = savedEnd;
+                if (GetCurrentRealTime() >= productionEndTime)
+                    CompleteProduction();
+            }
+            else
+            {
+                isProducing = false;
+                ClearMachineState();
+            }
         }
+        else if (isProductWaiting)
+        {
+            if (productPrefab != null && productSpawnPoint != null)
+            {
+                GameObject spawned = Instantiate(
+                    productPrefab,
+                    productSpawnPoint.position,
+                    productSpawnPoint.rotation
+                );
+                spawned.SetActive(true);
+
+                ProductCollector collector = spawned.GetComponent<ProductCollector>();
+                if (collector != null)
+                {
+                    collector.parentMachine = this;
+                    collector.medicineID = currentProducedMedicineID;
+                }
+
+                pendingProduct = spawned;
+            }
+        }
+    }
+
+    private void ClearMachineState()
+    {
+        PlayerPrefs.DeleteKey(machineId + "_saveVersion");
+        PlayerPrefs.DeleteKey(machineId + "_isProducing");
+        PlayerPrefs.DeleteKey(machineId + "_isProductWaiting");
+        PlayerPrefs.DeleteKey(machineId + "_endTime");
+        PlayerPrefs.DeleteKey(machineId + "_productID");
+        PlayerPrefs.Save();
     }
 }

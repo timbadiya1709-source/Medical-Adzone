@@ -3,10 +3,20 @@ using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour
 {
-    public void Scene2()
-    {SceneStateManagerRoot.Instance.SaveAndLoad("Scene2");
 
+public void LoadScene2()
+{
+    if (SceneStateManagerRoot.Instance != null)
+        SceneStateManagerRoot.Instance.LoadScene("Scene2");
+    else
+        SceneManager.LoadScene("Scene2");
+}   
+public void LoadScene1()
+{
+    if (SceneStateManagerRoot.Instance != null)
+        SceneStateManagerRoot.Instance.LoadScene("Scene1");
+    else
+        SceneManager.LoadScene("Scene1");
+}   
 
-    }
-public void Scene1() { SceneStateManagerRoot.Instance.SaveAndLoad("Scene1"); }
 }

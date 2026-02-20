@@ -18,6 +18,8 @@ public class UIToolDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     private Vector3 offset;
     private PatientListManager listManager;
 
+    private int currentUses = 1;
+
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -36,6 +38,25 @@ public class UIToolDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
         // Find the PatientListManager in the scene
         listManager = FindFirstObjectByType<PatientListManager>();
+
+        // Load state
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            currentUses = SceneStateManagerRoot.Instance.GetMedicineState(counterID, 1);
+            if (currentUses <= 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            SceneStateManagerRoot.Instance.SaveMedicineState(counterID, currentUses);
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -89,6 +110,13 @@ public class UIToolDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         
         // Tool is used once and destroyed
         Debug.Log(counterID + " tool used!");
+        
+        currentUses = 0;
+        if (SceneStateManagerRoot.Instance != null)
+        {
+            SceneStateManagerRoot.Instance.SaveMedicineState(counterID, 0);
+        }
+
         Destroy(gameObject);
     }
 }
